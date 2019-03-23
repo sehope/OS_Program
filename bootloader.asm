@@ -91,6 +91,8 @@ halt:
 greeting2:
 	db "Hello from Protected Mode ! :^)"
 
+call 0x8000 						; kernel entry point
+
 ; ---
 
 TIMES 510 - ($-$$) db 0				; make sure length is 512 bytes

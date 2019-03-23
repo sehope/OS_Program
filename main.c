@@ -6,8 +6,12 @@ int convert_num_h(unsigned int num, char buf[]);
 void convert_num (unsigned int num, char buf[]);
 
 
-int main()
+void main(void)
 {
+   unsigned char* vga = (unsigned char*) 0xb8000;
+   vga[0] = 'X';
+   vga[1] = 0x09;
+
    k_clrscr();
    char buf [100];
    int n, i = 3, count, c;
@@ -31,7 +35,9 @@ int main()
           }
           i++;
        }
-   return 0;
+   
+
+   for(;;);        //make sure kernel never stops w/ infinite loop
 }
 
 void k_clrscr()

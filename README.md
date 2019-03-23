@@ -8,3 +8,7 @@
 - run with qemu: 
 	- nasm -f bin bootloader.asm -o myos.bin
 	- qemu-system-x86_64 myos.bin
+
+**To Build**
+- make qemu
+- to remove .bin files:	make clean

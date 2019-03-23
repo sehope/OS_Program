@@ -11,6 +11,7 @@
 ;		-display
 ;		-before displaying message, the screen must be cleared. BIOS uses special interruption.
 ; - add boot signature at end of bootloader x
+; -----------------------------------------------------------------------------------------
 
 
 
@@ -21,21 +22,25 @@ ORG 0x7C00							; assemble the instructions from origin 0x7C00
 
 ; ---
 
-_BOOT:
-	mov ax, 0x2401
-	int 0x15
-	mov ax, 0x3
-	int 0x10
-	cli
-	lgdt [gdt_pointer]
-	mov eax, cr0
-	or eax,0x1
-	mov cr0, eax
-	jmp CODE_SEG:_BOOT2
-gdt_start:
+mov ax, 0x0003						; 00 in ah for setting video mode & size, 03 in al for telling it to be 80 x 25 chars
+int 0x10							; interrupt  10 manages writing chars to screen
+
+
+
+; --- Entering Protected Mode ---
+
+cli									; disable interrupts
+lgdt [gdt_pointer_to_beginning]		; load GDT reg w address
+mov eax, cr0
+or al, 1							; set PE bit in CR0
+mov cr0, eax
+
+jmp CODE_SEG:boot
+
+gdt_beginning:
 	dq 0x0
 gdt_code:
-	dw 0xFFFF
+	dw 0xFFF
 	dw 0x0
 	db 0x0
 	db 10011010b
@@ -49,39 +54,44 @@ gdt_data:
 	db 11001111b
 	db 0x0
 gdt_end:
-gdt_pointer:
-	dw gdt_end - gdt_start
-	dd gdt_start
 
-CODE_SEG equ gdt_code - gdt_start
-DATA_SEG equ gdt_data - gdt_start
+gdt_pointer_to_beginning:
+	dw gdt_end - gdt_beginning
+	dd gdt_beginning
 
-BITS 32
-_BOOT2:
+CODE_SEG equ gdt_code - gdt_beginning
+DATA_SEG equ gdt_data - gdt_beginning
+
+BITS 32								; choose 32 bit mode
+
+boot:								; load segment registers
 	mov ax, DATA_SEG
+
 	mov ds, ax
 	mov es, ax
 	mov fs, ax
 	mov gs, ax
 	mov ss, ax
+	mov esi, greeting2
+	mov ebx, 0xb8000
 
-; --- write to screen via VGA text buffer ---
-	mov esi,_DISPLAY
-	mov ebx,0xb8000 	;vga text buffer memory mapped to this loc
-_LOOP_START:
+print_greeting2:
 	lodsb
-	or al,al
-	jz _HALT
-	or eax,0x0500
+	or al, al
+	jz halt
+	or eax, 0x0500
 	mov word [ebx], ax
-	add ebx,2
-	jmp _LOOP_START
-_HALT:
+	add ebx, 2
+	jmp print_greeting2
+
+halt:
 	cli
 	hlt
-_DISPLAY: db "Hello from the Bootloader! :^)",0
+
+greeting2:
+	db "Hello from Protected Mode ! :^)"
 
 ; ---
 
-TIMES 510 - ($-$$) db 0					; make sure length is 512 bytes
-DW 0xAA55								; boot signature
+TIMES 510 - ($-$$) db 0				; make sure length is 512 bytes
+DW 0xAA55							; boot signature

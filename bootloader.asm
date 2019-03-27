@@ -37,21 +37,34 @@ int 0x10							; interrupt  10 manages writing chars to screen
 
 ; ---
 
-TIMES 510 - ($-$$) db 0				; make sure length is 512 bytes
-DW 0xAA55							; boot signature
 
 ; ---
 
 
 
-
-
-
-
-
 ; ---- OS PART ----
 
+start: 
+	mov si, text
+	call print_string
+	jmp $
+	text db 'This is our first Operating System!', 0
+	
+print_string:
+	mov ah, 0Eh
 
+.repeat:
+	lodsb
+	cmp al, 0
+	je .done
+	int 10h
+	jmp .repeat
+
+.done: 
+	ret
+
+TIMES 510 - ($-$$) db 0				; make sure length is 512 bytes
+DW 0xAA55							; boot signature
 
 ; ---- OS PART ----
 

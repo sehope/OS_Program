@@ -53,8 +53,10 @@ start:
 	text_pass db 'M', 0
 
 print_string:
+	mov ah, 06h
+	mov bh, 0Bh
+	int 10h
 	mov ah, 0Eh
-	mov bl, 0x3C
 
 .repeat:
 	lodsb
@@ -86,6 +88,9 @@ jmp $
 text_2 db 'user name: ', 0
 	
 print_string_2:
+	mov ah, 06h
+	mov bh, 9Dh
+	int 10h
 	mov ah, 0Eh
 
 .repeat_2:
@@ -154,6 +159,9 @@ jmp $
 text_5 db 'Primes:  ', 0xa, 0xd,  0
 	
 print_string_5:
+	mov ah, 06h
+	mov bh, 2Ch
+	int 10h
 	mov ah, 0Eh
 
 .repeat_5:

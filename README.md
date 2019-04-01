@@ -12,3 +12,7 @@
 **To Build**
 - make qemu
 - to remove .bin files:	make clean
+
+**Username and Password**
+- user: S
+- pass: M

@@ -45,33 +45,45 @@ int 0x10							; interrupt  10 manages writing chars to screen
 ; ---- OS PART ----
 
 start: 
-	mov si, text
-	call print_string
-	jmp $
-	text db 'This is our first Operating System!', 0xa, 0xd, 0
-	text_user db 'S', 0
-	text_pass db 'M', 0
 
-print_string:
+; ---------------------------  Display the greeting -------------------------------
+
+	mov si, greeting
+	call print_greeting
+	jmp $
+	greeting db 'This is our first Operating System!', 0xa, 0xd, 0
+	text_user db 'S', 0 ;user name
+	text_pass db 'M', 0 ;password
+
+print_greeting:
 	mov ah, 06h
 	mov bh, 0Bh
 	int 10h
 	mov ah, 0Eh
 
-.repeat:
+.repeat_greeting:
 	lodsb
 	cmp al, 0
-	je .done
+	je .done_greeting
 	int 10h
-	jmp .repeat
+	jmp .repeat_greeting
+; ---------------------------------------------------------------------------------
 
-.done:
+
+
+; ------------------------ Check if user pressed enter ----------------------------
+.done_greeting:
 
 	mov ah, 00h
 	int 16h
 	cmp al, 13
-	jne .done
+	jne .done_greeting
+; ---------------------------------------------------------------------------------
 
+
+
+
+; ----------------------------- Clear Screen---------------------------------------
 call cls
 jmp $
 
@@ -81,31 +93,47 @@ cls:
 	mov al, 0x03
 	int 0x10
 	popa
+; ---------------------------------------------------------------------------------
 
-mov si, text_2
-call print_string_2
+
+
+
+
+; -------------------------- Display user name prompt------------------------------
+mov si, user_name
+call print_user_name
 jmp $
-text_2 db 'user name: ', 0
+user_name db 'user name: ', 0
 	
-print_string_2:
+print_user_name:
 	mov ah, 06h
 	mov bh, 9Dh
 	int 10h
 	mov ah, 0Eh
 
-.repeat_2:
+.repeat_user_name:
 	lodsb
 	cmp al, 0
-	je .done_2
+	je .done_user_name
 	int 10h
-	jmp .repeat_2
+	jmp .repeat_user_name
+; ---------------------------------------------------------------------------------
 
-.done_2: 
+
+
+
+; ------------------------ Check if user name matches 'S' -------------------------
+.done_user_name: 
 	mov ah, 00h
 	int 16h
 	cmp al, 83
-	jne .done_2
+	jne .done_user_name
+; ---------------------------------------------------------------------------------
 
+
+
+
+;-------------------- Display a new line and carriage return ----------------------
 mov si, text_crnl
 call print_newline
 jmp$
@@ -117,32 +145,48 @@ print_newline:
 .repeat_newline:
 	lodsb
 	cmp al, 0
-	je .done_3
+	je .done_newline
 	int 10h
 	jmp .repeat_newline
+; ---------------------------------------------------------------------------------
 
-.done_3:
-mov si, text_3
-call print_string_3
+
+
+
+; ------------------------ Display Password prompt --------------------------------
+.done_newline:
+mov si, password
+call print_password
 jmp $
-text_3 db 'password: ', 0
+password db 'password: ', 0
 	
-print_string_3:
+print_password:
 	mov ah, 0Eh
 
-.repeat_3:
+.repeat_password:
 	lodsb
 	cmp al, 0
-	je .done_4
+	je .done_password
 	int 10h
-	jmp .repeat_3
+	jmp .repeat_password
+; ---------------------------------------------------------------------------------
 
-.done_4:
+
+
+
+;------------------------- Check if user typed 'M' --------------------------------
+
+.done_password:
 	mov ah, 00h
 	int 16h
 	cmp al, 77
-	jne .done_4
+	jne .done_password
+; ---------------------------------------------------------------------------------
 
+
+
+
+; ------------------------- Clear Screen Again ------------------------------------
 call cls_2
 jmp $
 
@@ -152,27 +196,32 @@ cls_2:
 	mov al, 0x03
 	int 0x10
 	popa
+; ---------------------------------------------------------------------------------
 
-mov si, text_5
-call print_string_5
+
+
+
+; -------------------------- Display Primes ---------------------------------------
+mov si, primes
+call print_primes
 jmp $
-text_5 db 'Primes:  ', 0xa, 0xd,  0
+primes db 'Primes:  ', 0xa, 0xd,  0
 	
-print_string_5:
+print_primes:
 	mov ah, 06h
 	mov bh, 2Ch
 	int 10h
 	mov ah, 0Eh
 
-.repeat_5:
+.repeat_primes:
 	lodsb
 	cmp al, 0
-	je .done_5
+	je .done_primes
 	int 10h
-	jmp .repeat_5
-.done_5:
+	jmp .repeat_primes
+.done_primes:
 	ret
-
+; ---------------------------------------------------------------------------------
 
 
 TIMES 510 - ($-$$) db 0				; make sure length is 512 bytes

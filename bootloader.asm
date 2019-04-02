@@ -16,8 +16,6 @@
 
 
 
-
-
 BITS 16								; choose 16 bit mode
 ORG 0x7C00							; assemble the instructions from origin 0x7C00
 
@@ -30,15 +28,6 @@ ORG 0x7C00							; assemble the instructions from origin 0x7C00
 
 mov ax, 0x0003						; 00 in ah for setting video mode & size, 03 in al for telling it to be 80 x 25 chars
 int 0x10							; interrupt  10 manages writing chars to screen
-
-
-
-;jmp _start							; kernel entry point
-
-; ---
-
-
-; ---
 
 
 
@@ -201,11 +190,11 @@ cls_2:
 
 
 
-; -------------------------- Display Primes ---------------------------------------
+; -------------------------- Display Primes Label ---------------------------------------
 mov si, primes
 call print_primes
 jmp $
-primes db 'Primes:  ', 0xa, 0xd,  0
+primes db 'Primes: ', 0xa, 0xd,  0
 	
 print_primes:
 	mov ah, 06h
@@ -220,12 +209,21 @@ print_primes:
 	int 10h
 	jmp .repeat_primes
 .done_primes:
-	ret
+	
+
+; ------------------------ Naive Calculate Primes ----------------------------
+
+extern print20primes
+call print20primes
+
+
+
+
+
+
 ; ---------------------------------------------------------------------------------
 
 
 TIMES 510 - ($-$$) db 0				; make sure length is 512 bytes
 DW 0xAA55							; boot signature
-
-; ---- OS PART ----
 

@@ -208,22 +208,31 @@ print_primes:
 	je .done_primes
 	int 10h
 	jmp .repeat_primes
-.done_primes:
+
 	
-
-; ------------------------ Naive Calculate Primes ----------------------------
-
-extern print20primes
-call print20primes
+.done_primes:
+; ---------------------------- Naive Display Primes -------------------------------
 
 
+mov si, prime_2
+call print_2
+jmp $
+prime_2 db '2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71', 0xa, 0xd, 0
 
+print_2:
+	mov ah, 0Eh
 
+.repeat_prime_2:
+	lodsb 
+	cmp al, 0
+	je .done_prime_2
+	int 10h
+	jmp .repeat_prime_2
 
-
+.done_prime_2:
+ret
 ; ---------------------------------------------------------------------------------
 
 
 TIMES 510 - ($-$$) db 0				; make sure length is 512 bytes
-DW 0xAA55							; boot signature
-
+DW 0xAA55							; boot signature 
